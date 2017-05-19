@@ -10,10 +10,15 @@ func init() {
 	IpfsHandlerMgr.RegHandler(NewGetFile())
 }
 
-type GetFileResponse struct {
-	Data []byte `json:"data"`
+// Define type IPFSFieData to do a FAKE json marshalling
+// Used for returning data
+type IPFSFileData []byte
+
+func (d IPFSFileData) MarshalJSON() ([]byte, error) {
+	return d, nil
 }
 
+// The "getfile" rpc handler
 type GetFile struct{}
 
 func NewGetFile() *GetFile { return &GetFile{} }
@@ -40,7 +45,7 @@ func (this *GetFile) Handle(params map[string]interface{}) (result interface{}, 
 		return nil, common.Err_IPFS_ERROR
 	}
 
-	log4.Info("GetFile %s: %v", id, data)
+	log4.Info("GetFile %s: %s", id, string(data))
 
-	return &GetFileResponse{Data: data}, common.Err_OK
+	return IPFSFileData(data), common.Err_OK
 }

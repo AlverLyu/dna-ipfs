@@ -1,6 +1,8 @@
 package jsonrpc
 
 import (
+	"encoding/json"
+
 	"github.com/AlverLyu/dna-ipfs/common"
 	"github.com/AlverLyu/dna-ipfs/ipfs"
 	log4 "github.com/alecthomas/log4go"
@@ -23,24 +25,20 @@ func (this *AddFile) GetName() string {
 }
 
 func (this *AddFile) Handle(params map[string]interface{}) (result interface{}, errorCode int) {
-	name, nameOk := params["name"]
-	data, dataOK := params["data"]
-	if !nameOk || !dataOK {
+	_, nameOK := params["name"]
+	_, dataOK := params["data"]
+	if !nameOK || !dataOK {
 		return nil, common.Err_Params
 	}
 
-	id, err := ipfs.Add([]byte(data.(string)))
+	ipfsData, err := json.Marshal(params)
+	id, err := ipfs.Add(ipfsData)
 	if err != nil {
 		log4.Error("AddFile failed: %s", err)
 		return nil, common.Err_IPFS_ERROR
 	}
 
-	v, ok := name.(string)
-	if !ok {
-		log4.Error("AddFile failed! 'name' is not a string")
-		return nil, common.Err_Params
-	}
-	log4.Info("AddFile %s %s", id, v)
+	log4.Info("AddFile succeeded, IPFS ID is %s", id)
 
 	return &AddFileResponse{ID: id}, common.Err_OK
 }
