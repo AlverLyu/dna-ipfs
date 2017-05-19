@@ -1,0 +1,8 @@
+{
+  "Port":"8080",
+  "RpcPath":"/rpc/ipfs",
+  "ReadTimeout":30,
+  "WriteTimeout":30,
+  "MaxHeaderBytes":104857600,
+  "IPFSURL": "http://localhost:5001"
+}
