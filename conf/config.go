@@ -29,7 +29,7 @@ func (this *Config) Init(file string) {
 	if err == nil {
 		return
 	}
-	log4.Error("Config Init error:%s", err)
+	log4.Warn("Config Init error:%s", err)
 	this.Port = "8080"
 	this.RpcPath = "/rpc/ipfs"
 	this.ReadTimeout = 30

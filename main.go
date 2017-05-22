@@ -4,24 +4,33 @@ import (
 	"flag"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/AlverLyu/dna-ipfs/conf"
 	"github.com/AlverLyu/dna-ipfs/ipfs"
 	"github.com/AlverLyu/dna-ipfs/jsonrpc"
-	log4 "github.com/alecthomas/log4go"
 )
 
 var CfgFile string
 var LogFile string
 
-func init() {
-	flag.StringVar(&CfgFile, "cf", "./etc/dnaipfs.json", "The path of config file")
-	flag.StringVar(&LogFile, "lf", "./etc/log4go.xml", "The path of log config file")
-}
-
 func main() {
-	log4.LoadConfiguration(LogFile)
+	binPath, err := os.Executable()
+	if err != nil {
+		binPath = "."
+	}
+	binDir := filepath.Dir(binPath)
+	flag.StringVar(&CfgFile, "c", binDir+"/dnaipfs.cfg", "The path of config file")
+	flag.StringVar(&LogFile, "lc", "", "The path of log config file")
+	flag.Parse()
+
+	if len(LogFile) > 0 {
+		conf.OpenCustomLog(LogFile)
+	} else {
+		os.Mkdir(binDir+"/log", os.ModePerm)
+		conf.OpenDefaultLog(binDir + "/log/dnaipfs.log")
+	}
 
 	conf.GCfg.Init(CfgFile)
 	ipfs.SetIPFSURL(conf.GCfg.IPFSURL)
